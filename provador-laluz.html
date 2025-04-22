@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Provador Virtual - Laluz</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 40px;
+      text-align: center;
+    }
+    h1 {
+      color: #be88a6;
+    }
+    label {
+      display: block;
+      margin: 15px 0 5px;
+      font-weight: bold;
+    }
+    select, input[type="file"], button {
+      padding: 10px;
+      margin-bottom: 20px;
+      width: 100%;
+      max-width: 400px;
+    }
+    button {
+      background-color: #be88a6;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #a5698d;
+    }
+    img {
+      margin-top: 20px;
+      max-width: 100%;
+      border: 2px solid #ddd;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Provador Virtual - Laluz</h1>
+  
+  <form id="form">
+    <label for="categoria">Escolha a categoria:</label>
+    <select id="categoria" name="categoria" required>
+      <option value="">Selecione</option>
+      <option value="brincos-pequenos">Brincos Pequenos</option>
+      <option value="brincos-grandes">Brincos Grandes</option>
+      <option value="argolas">Argolas</option>
+      <option value="colares">Colares</option>
+      <option value="chokers">Chokers</option>
+      <option value="pulseiras">Pulseiras</option>
+      <option value="conjuntos">Conjuntos</option>
+    </select>
+
+    <label for="fotoJoia">Envie a foto da joia que deseja experimentar:</label>
+    <input type="file" id="fotoJoia" name="fotoJoia" accept="image/*" required />
+
+    <label for="fotoPessoa">Envie sua foto (rosto, pescoço, mão):</label>
+    <input type="file" id="fotoPessoa" name="fotoPessoa" accept="image/*" required />
+
+    <button type="submit">Testar agora</button>
+  </form>
+
+  <div id="resultado">
+    <h2 id="mensagem"></h2>
+    <img id="imagemGerada" style="display: none;" />
+  </div>
+
+  <script>
+    const form = document.getElementById('form');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const categoria = document.getElementById('categoria').value;
+      const fotoJoia = document.getElementById('fotoJoia').files[0];
+      const fotoPessoa = document.getElementById('fotoPessoa').files[0];
+
+      if (!categoria || !fotoJoia || !fotoPessoa) {
+        alert('Preencha todos os campos.');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('categoria', categoria);
+      formData.append('fotoJoia', fotoJoia);
+      formData.append('fotoPessoa', fotoPessoa);
+
+      const mensagem = document.getElementById('mensagem');
+      const imagem = document.getElementById('imagemGerada');
+      mensagem.textContent = 'Gerando imagem, aguarde...';
+      imagem.style.display = 'none';
+
+      try {
+        const response = await fetch('https://provador-laluz-provador-backend.onrender.com/api/provador', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) {
+          throw new Error('Erro na geração da imagem');
+        }
+
+        const data = await response.json();
+        mensagem.textContent = data.mensagem || 'Imagem gerada com sucesso!';
+        imagem.src = data.imagem_url;
+        imagem.style.display = 'block';
+      } catch (error) {
+        mensagem.textContent = 'Erro ao processar. Tente novamente.';
+        console.error(error);
+      }
+    });
+  </script>
+</body>
+</html>
+
+<a href="https://laluzjoias.com.br/provador-laluz.html" target="_blank" style="
+  display: inline-block;
+  padding: 15px 25px;
+  background-color: #be88a6;
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+  text-decoration: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  transition: background-color 0.3s ease;
+">
+  Testar Brinco Agora 💎
+</a>
